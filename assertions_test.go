@@ -3,7 +3,7 @@ package jsonassert
 import (
     "fmt"
     "testing"
-	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/assert"
 )
 
 type MockTesting struct {

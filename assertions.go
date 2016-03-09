@@ -1,7 +1,7 @@
 package jsonassert
 
 type Testing interface {
-	Errorf(format string, args ...interface{})
+    Errorf(format string, args ...interface{})
 }
 
 func AssertJSONEquals(t Testing, expected, actual string, strict bool) {
