@@ -4,15 +4,7 @@ type Testing interface {
 	Errorf(format string, args ...interface{})
 }
 
-type JSONAssertions struct {
-    t Testing
-}
-
-func NewJSONAssertions(t Testing) *JSONAssertions {
-    return &JSONAssertions{t: t}
-}
-
-func (a *JSONAssertions) AssertEquals(expected string, actual string, strict bool) {
+func AssertJSONEquals(t Testing, expected, actual string, strict bool) {
     jsonCompare := NewJSONCompare()
     var compareMode JSONCompareMode
     if strict {
@@ -22,11 +14,11 @@ func (a *JSONAssertions) AssertEquals(expected string, actual string, strict boo
     }
     result := jsonCompare.CompareJSON(expected, actual, compareMode)
     if result.Failed() {
-        a.t.Errorf("%s", result.GetMessage())
+        t.Errorf("%s", result.GetMessage())
     }
 }
 
-func (a *JSONAssertions) AssertNotEquals(expected string, actual string, strict bool) {
+func AssertJSONNotEquals(t Testing, expected, actual string, strict bool) {
     jsonCompare := NewJSONCompare()
     var compareMode JSONCompareMode
     if strict {
@@ -36,7 +28,7 @@ func (a *JSONAssertions) AssertNotEquals(expected string, actual string, strict 
     }
     result := jsonCompare.CompareJSON(expected, actual, compareMode)
     if !result.Failed() {
-        a.t.Errorf("Json comparison failed:\n%s\n", result.GetMessage())
+        t.Errorf("Json comparison failed:\n%s\n", result.GetMessage())
     }
 
 }
