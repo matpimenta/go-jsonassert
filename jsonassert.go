@@ -2,8 +2,6 @@ package jsonassert
 
 import (
     "fmt"
-    "github.com/bitly/go-simplejson"
-    "reflect"
 )
 
 type JSONCompareMode int
@@ -32,25 +30,26 @@ func NewJSONCompare() JSONCompare {
 }
 
 func (comp JSONCompare) CompareJSON(expectedStr string, actualStr string, compareMode JSONCompareMode) *JSONCompareResult {
-    expected := simplejson.New()
-    actual := simplejson.New()
-    if expected.UnmarshalJSON([]byte(expectedStr)) != nil {
+    expected, errE := NewJSONNodeFromString(expectedStr)
+    actual, errA := NewJSONNodeFromString(actualStr)
+
+    if errE != nil {
         return &JSONCompareResult{success: false}
     }
-    if actual.UnmarshalJSON([]byte(actualStr)) != nil {
+    if errA != nil {
         return &JSONCompareResult{success: false}
     }
     comparator := DefaultComparator{compareMode: compareMode}
-    if _, err := expected.Array(); err == nil {
-        if _, err := actual.Array(); err == nil {
+    if expected.IsArray() {
+        if actual.IsArray() {
             return comparator.CompareJSONArray(expected, actual)
         } else {
             result := NewJSONCompareResult()
             result.Fail("", expected, actual)
             return result
         }
-    } else if _, err := expected.Map(); err == nil {
-        if _, err := actual.Map(); err == nil {
+    } else if expected.IsMap() {
+        if actual.IsMap() {
             return comparator.CompareJSONObject(expected, actual)
         } else {
             result := NewJSONCompareResult()
@@ -59,7 +58,7 @@ func (comp JSONCompare) CompareJSON(expectedStr string, actualStr string, compar
         }
     } else {
         result := NewJSONCompareResult()
-        comparator.CompareValues("", expected.Interface(), actual.Interface(), result)
+        comparator.CompareValues("", expected.GetData(), actual.GetData(), result)
         return result
     }
 }
@@ -90,9 +89,8 @@ func (res *JSONCompareResult) Fail(prefix string, expected interface{}, actual i
 
 func (res *JSONCompareResult) describe(item interface{}) string {
     if item != nil {
-        fmt.Printf("Type: %s\n", reflect.TypeOf(item))
-        if safe, ok := item.(*simplejson.Json); ok {
-            out, _ := safe.EncodePretty()
+        if safe, ok := item.(JSONNode); ok {
+            out := safe.String()
             return string(out)
         } else {
             return fmt.Sprint(item)

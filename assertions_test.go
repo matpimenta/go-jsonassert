@@ -3,6 +3,7 @@ package jsonassert
 import (
     "fmt"
     "testing"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockTesting struct {
@@ -17,23 +18,15 @@ func (t *MockTesting) Errorf(format string, args ...interface{}) {
 
 func TestAssertEqualsWhenJSONsAreEquals(t *testing.T) {
     tt := &MockTesting{}
-    assert := NewJSONAssertions(tt)
-    assert.AssertEquals(`{"url": "URL 1"}`, `{"url": "URL 1"}`, false)
-    if tt.Failed {
-        t.Errorf(tt.Message)
-    }
+    assertion:= NewJSONAssertions(tt)
+    assertion.AssertEquals(`{"url": "URL 1"}`, `{"url": "URL 1"}`, false)
+    assert.False(t, tt.Failed, tt.Message)
 }
 
 func TestAssertEqualsWhenJSONsAreNotEquals(t *testing.T) {
     tt := &MockTesting{}
-    assert := NewJSONAssertions(tt)
-    assert.AssertEquals(`{"url": "URL 1"}`, `{"url": "URL 2"}`, false)
-    if !tt.Failed {
-        t.Errorf(tt.Message)
-    } else {
-        expected := "[url:\nExpected: \"URL 1\"\ngot: \"URL 2\"\n]"
-        if tt.Message != expected {
-            t.Errorf("Invalid message: %s", tt.Message)
-        }
-    }
+    assertion:= NewJSONAssertions(tt)
+    assertion.AssertEquals(`{"url": "URL 1"}`, `{"url": "URL 2"}`, false)
+    assert.True(t, tt.Failed, tt.Message)
+    assert.Equal(t, "[url:\nExpected: \"URL 1\"\ngot: \"URL 2\"\n]", tt.Message)
 }
