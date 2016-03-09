@@ -46,43 +46,32 @@ func (comp *DefaultComparator) CompareValues(prefix string, expected, actual int
 
 		result.Fail(prefix, expected, actual)
 	} else {
-		if expectedElementSafe, ok := expected.(JSONNode); ok {
-			if actualElementSafe, ok := actual.(JSONNode); ok {
-				comp.CompareValuesJSONNode(prefix, expectedElementSafe, actualElementSafe, result)
-			} else {
-				result.Fail(prefix, expected, actual)
-			}
-
+		if expectedElementSafe, actualElementSafe, ok := safeGetJSONNode(expected, actual); ok {
+            comp.CompareValuesJSONNode(prefix, expectedElementSafe, actualElementSafe, result)
 		} else {
-			if reflect.TypeOf(expected).Kind() == reflect.Slice {
-				if reflect.TypeOf(actual).Kind() == reflect.Slice {
-					expectedElementSafe := expected.([]interface{})
-					actualElementSafe := actual.([]interface{})
+            expectedKind := reflect.TypeOf(expected).Kind()
+            actualKind := reflect.TypeOf(actual).Kind()
 
-					newExpected := NewJSONNode()
-					newExpected.SetArray(expectedElementSafe)
-					newActual := NewJSONNode()
-					newActual.SetArray(actualElementSafe)
-					if comp.CompareJSONArray(newExpected, newActual).Failed() {
-						result.Fail(prefix, expected, actual)
-					}
-				} else {
-					result.Fail(prefix, expected, actual)
-				}
-			} else if reflect.TypeOf(expected).Kind() == reflect.Map {
-				if reflect.TypeOf(actual).Kind() == reflect.Map {
-					expectedElementSafe := expected.(map[string]interface{})
-					actualElementSafe := actual.(map[string]interface{})
+			if expectedKind == reflect.Slice && actualKind == reflect.Slice {
+                expectedElementSafe := expected.([]interface{})
+                actualElementSafe := actual.([]interface{})
 
-					newExpected := NewJSONNodeFromMap(expectedElementSafe)
-					newActual := NewJSONNodeFromMap(actualElementSafe)
-					if comp.CompareJSONObject(newExpected, newActual).Failed() {
-						result.Fail(prefix, expected, actual)
-					}
-				} else {
-					result.Fail(prefix, expected, actual)
-				}
+                newExpected := NewJSONNode()
+                newExpected.SetArray(expectedElementSafe)
+                newActual := NewJSONNode()
+                newActual.SetArray(actualElementSafe)
+                if comp.CompareJSONArray(newExpected, newActual).Failed() {
+                    result.Fail(prefix, expected, actual)
+                }
+			} else if expectedKind == reflect.Map && actualKind == reflect.Map {
+                expectedElementSafe := expected.(map[string]interface{})
+                actualElementSafe := actual.(map[string]interface{})
 
+                newExpected := NewJSONNodeFromMap(expectedElementSafe)
+                newActual := NewJSONNodeFromMap(actualElementSafe)
+                if comp.CompareJSONObject(newExpected, newActual).Failed() {
+                    result.Fail(prefix, expected, actual)
+                }
 			} else if expected != actual {
 				result.Fail(prefix, expected, actual)
 			}
@@ -145,63 +134,52 @@ func (comp *DefaultComparator) RecursivelyCompareJSONArray(key string, expected,
 				reflect.TypeOf(actualElement).Kind() != reflect.TypeOf(expectedElement).Kind() {
 				continue
 			}
-			if expectedElementSafe, ok := expectedElement.(JSONNode); ok {
-				if actualElementSafe, ok := actualElement.(JSONNode); ok {
-					if expectedElementSafe.IsMap() {
-						if actualElementSafe.IsMap() {
-							if comp.CompareJSONObject(expectedElementSafe, actualElementSafe).Passed() {
-								matched = append(matched, j)
-								matchFound = true
-								break
-							}
-						}
-					} else if expectedElementSafe.IsArray() {
-						if actualElementSafe.IsArray() {
-							if comp.CompareJSONArray(expectedElementSafe, actualElementSafe).Passed() {
-								matched = append(matched, j)
-								matchFound = true
-								break
-							}
-						}
-					}
-				}
+			if expectedElementSafe, actualElementSafe, ok := safeGetJSONNode(expectedElement, actualElement); ok {
+                if expectedElementSafe.IsMap() && actualElementSafe.IsMap() {
+                    if comp.CompareJSONObject(expectedElementSafe, actualElementSafe).Passed() {
+                        matched = append(matched, j)
+                        matchFound = true
+                        break
+                    }
+                } else if expectedElementSafe.IsArray() && actualElementSafe.IsArray() {
+                    if comp.CompareJSONArray(expectedElementSafe, actualElementSafe).Passed() {
+                        matched = append(matched, j)
+                        matchFound = true
+                        break
+                    }
+                }
 			} else {
+				expectedKind := reflect.TypeOf(expectedElement).Kind()
+				actualKind := reflect.TypeOf(actualElement).Kind()
 
-				if reflect.TypeOf(expectedElement).Kind() == reflect.Slice {
-					if reflect.TypeOf(actualElement).Kind() == reflect.Slice {
-						expectedElementSafe := expectedElement.([]interface{})
-						actualElementSafe := actualElement.([]interface{})
+				if expectedKind == reflect.Slice && actualKind == reflect.Slice {
+					expectedElementSafe := expectedElement.([]interface{})
+					actualElementSafe := actualElement.([]interface{})
 
-						newExpected := NewJSONNodeFromArray(expectedElementSafe)
-						newActual := NewJSONNodeFromArray(actualElementSafe)
-						if comp.CompareJSONArray(newExpected, newActual).Passed() {
-							matched = append(matched, j)
-							matchFound = true
-							break
-						}
-					}
-				} else if reflect.TypeOf(expectedElement).Kind() == reflect.Map {
-					if reflect.TypeOf(actualElement).Kind() == reflect.Map {
-						expectedElementSafe := expectedElement.(map[string]interface{})
-						actualElementSafe := actualElement.(map[string]interface{})
-
-						newExpected := NewJSONNodeFromMap(expectedElementSafe)
-						newActual := NewJSONNodeFromMap(actualElementSafe)
-						if comp.CompareJSONObject(newExpected, newActual).Passed() {
-							matched = append(matched, j)
-							matchFound = true
-							break
-						}
-					}
-				} else {
-					if expectedElement == actualElement {
+					newExpected := NewJSONNodeFromArray(expectedElementSafe)
+					newActual := NewJSONNodeFromArray(actualElementSafe)
+					if comp.CompareJSONArray(newExpected, newActual).Passed() {
 						matched = append(matched, j)
 						matchFound = true
 						break
 					}
+				} else if expectedKind == reflect.Map && actualKind == reflect.Map {
+					expectedElementSafe := expectedElement.(map[string]interface{})
+					actualElementSafe := actualElement.(map[string]interface{})
+
+					newExpected := NewJSONNodeFromMap(expectedElementSafe)
+					newActual := NewJSONNodeFromMap(actualElementSafe)
+					if comp.CompareJSONObject(newExpected, newActual).Passed() {
+						matched = append(matched, j)
+						matchFound = true
+						break
+					}
+				} else if expectedElement == actualElement {
+					matched = append(matched, j)
+					matchFound = true
+					break
 				}
 			}
-
 		}
 		if !matchFound {
 			result.FailWithMessage(fmt.Sprintf("%s[%d] Could not find match for element %s", key, i, expectedElement))
@@ -245,3 +223,12 @@ func qualify(prefix string, key string) string {
 	}
 }
 
+func safeGetJSONNode(expected, actual interface{}) (JSONNode, JSONNode, bool) {
+	expectedSafe, ok1 := expected.(JSONNode)
+	actualSafe, ok2 := actual.(JSONNode)
+	if ok1 && ok2 {
+		return expectedSafe, actualSafe, true
+	} else {
+		return nil, nil, false
+	}
+}
