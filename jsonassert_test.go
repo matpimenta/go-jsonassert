@@ -231,7 +231,6 @@ func testPass(expected string, actual string, compareMode JSONCompareMode, t *te
     assert.True(t, result.Passed(), message)
 }
 
-
 func testFail(expected string, actual string, compareMode JSONCompareMode, t *testing.T) {
     message := fmt.Sprintf("%s != %s (%d)", expected, actual, compareMode)
     jsonCompare := NewJSONCompare()
