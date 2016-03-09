@@ -27,8 +27,8 @@ func AssertJSONNotEquals(t Testing, expected, actual string, strict bool) {
         compareMode = LENIENT
     }
     result := jsonCompare.CompareJSON(expected, actual, compareMode)
-    if !result.Failed() {
-        t.Errorf("Json comparison failed:\n%s\n", result.GetMessage())
+    if result.Failed() {
+        t.Errorf("JSONs are equal:\n%s\n", result.GetMessage())
     }
 
 }

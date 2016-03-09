@@ -9,13 +9,15 @@ Usage
 -----
 
 ```go
+package test
+
 import (
-	_ "github.com/matpimenta/go-jsonassert"
+    "testing"
+	. "github.com/matpimenta/go-jsonassert"
 )
 
 func TestExample(t *testing.T) {
-    actualResult := responseFromRestEndpoint()
-    AssertJSONEquals(t, `{ "url": "Repository 1" }`, actualResult, false)
+    AssertJSONEquals(t, `{ "name": "John" }`, `{ "name": "John", "surname": "Smith" }`, false)
 }
 
 ```
