@@ -5,23 +5,23 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestMatchJSONLenientlyWhenJSONsAreEqual(t *testing.T) {
+func TestLenientlyMatchJSONWhenJSONsAreEqual(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1", "name": "John"}`).To(MatchJSONLeniently(`{"url": "URL 1"}`))
+    Expect(`{"url": "URL 1", "name": "John"}`).To(LenientlyMatchJSON(`{"url": "URL 1"}`))
 }
 
-func TestMatchJSONLenientlyWhenJSONsAreNotEqual(t *testing.T) {
+func TestLenientlyMatchJSONWhenJSONsAreNotEqual(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1", "name": "John"}`).NotTo(MatchJSONLeniently(`{"url": "URL 2"}`))
+    Expect(`{"url": "URL 1", "name": "John"}`).NotTo(LenientlyMatchJSON(`{"url": "URL 2"}`))
 }
 
-func TestMatchJSONStrictlyWhenJSONsAreEqual(t *testing.T) {
+func TestStrictlyMatchJSONWhenJSONsAreEqual(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1"}`).To(MatchJSONStrictly(`{"url": "URL 1"}`))
+    Expect(`{"url": "URL 1"}`).To(StrictlyMatchJSON(`{"url": "URL 1"}`))
 }
 
-func TestMatchJSONStrictlyWhenJSONsAreNotEqual(t *testing.T) {
+func TestStrictlyMatchJSONWhenJSONsAreNotEqual(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1", "name": "John"}`).NotTo(MatchJSONStrictly(`{"url": "URL 1"}`))
+    Expect(`{"url": "URL 1", "name": "John"}`).NotTo(StrictlyMatchJSON(`{"url": "URL 1"}`))
 }
 

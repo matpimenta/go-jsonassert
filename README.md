@@ -30,21 +30,21 @@ Gomega Matcher
 --------------
 
 ```go
-package jsonassert
+package test
 
 import (
     "testing"
 	. "github.com/onsi/gomega"
 )
 
-func TestMatchJSONLeniently(t *testing.T) {
+func TestLenientlyMatchJSON(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1", "name": "John"}`).To(MatchJSONLeniently(`{"url": "URL 1"}`))
+    Expect(`{"url": "URL 1", "name": "John"}`).To(LenientlyMatchJSON(`{"url": "URL 1"}`))
 }
 
-func TestMatchJSONStrictly(t *testing.T) {
+func TestStrictlyMatchJSON(t *testing.T) {
     RegisterTestingT(t)
-    Expect(`{"url": "URL 1"}`).To(MatchJSONStrictly(`{"url": "URL 1"}`))
+    Expect(`{"url": "URL 1"}`).To(StrictlyMatchJSON(`{"url": "URL 1"}`))
 }
 
 ```

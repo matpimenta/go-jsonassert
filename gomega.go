@@ -38,11 +38,11 @@ func (m *JSONAssertMatcher) NegatedFailureMessage(actual interface{}) (message s
     }
 }
 
-func MatchJSONStrictly(expected interface{}) *JSONAssertMatcher {
+func StrictlyMatchJSON(expected interface{}) *JSONAssertMatcher {
     return &JSONAssertMatcher{ expected: expected, compareMode: STRICT }
 }
 
-func MatchJSONLeniently(expected interface{}) *JSONAssertMatcher {
+func LenientlyMatchJSON(expected interface{}) *JSONAssertMatcher {
     return &JSONAssertMatcher{ expected: expected, compareMode: LENIENT }
 }
 
