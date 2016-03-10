@@ -16,8 +16,12 @@ import (
 	. "github.com/matpimenta/go-jsonassert"
 )
 
-func TestExample(t *testing.T) {
+func TestLenientAssertion(t *testing.T) {
     AssertJSONEquals(t, `{ "name": "John" }`, `{ "name": "John", "surname": "Smith" }`, false)
+}
+
+func TestStrictAssertion(t *testing.T) {
+    AssertJSONEquals(t, `{ "name": "John" }`, `{ "name": "John" }`, true)
 }
 
 ```
